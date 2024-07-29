@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qms.approve.dao.NoticeDao">
+	
+	
+	<resultMap type="com.qms.approve.vo.NoticeVO" id="noticeMap">
+	    <result property="noticeSeq" 	            column="NOTICE_SEQ" />
+		<result property="userId"           	    column="USER_ID" />
+		<result property="noticeType"     	        column="NOTICE_TYPE" />
+		<result property="title"    	            column="TITLE" />
+		<result property="content"  	     	    column="CONTENT" />
+		<result property="filePath" 	            column="FILE_PATH" />
+		<result property="fileName"                 column="FILE_NAME" />
+		<result property="delYn"            	    column="DEL_YN" />
+		<result property="regDt"            	    column="REG_DT" />
+		<result property="regUserId"            	column="REG_USER_ID" />
+		<result property="updDt"            	    column="UPD_DT" />
+		<result property="updUserId"            	column="UPD_USER_ID" />
+		<result property="userName"            	    column="USER_NAME" />
+		<result property="deptCd"            	    column="DEPT_CD" />
+		<result property="deptName"            	    column="DEPT_NAME" />
+		<result property="comName"            	    column="COME_NAME" />
+	    <result property="comGrpCd"            	    column="COME_GRP_CD" />
+	    <result property="comCd"            	    column="COME_CD" />
+	  </resultMap>
+
+	<select id="selectNoticeInfo"  resultMap = "noticeMap">
+	   SELECT 
+	         A.NOTICE_SEQ,
+	         A.USER_ID,
+	         A.NOTICE_TYPE,
+	         A.TITLE,
+	         A.CONTENT,
+	         A.FILE_PATH,
+	         A.FILE_NAME,
+	         A.DEL_YN,
+	         A.REG_DT,
+	         A.REG_USER_ID,
+	         A.UPD_DT,
+	         A.UPD_USER_ID,
+	         B.USER_NAME,
+	         C.DEPT_CD,
+	         C.DEPT_NAME,
+	         D.COM_NAME,
+	         D.COM_CD,
+	         D.COM_GRP_CD
+	     FROM TB_NOTICE_INFO A, TB_USER_INFO B, TB_DEPT_INFO C, TB_COM_CODE D
+	     WHERE A.USER_ID = B.USER_ID 
+	     AND B.DEPT_CD = C.DEPT_CD  
+	     AND A.notice_type = D.com_cd
+	     AND D.com_grp_cd = 'NT01';
+	
+	
+	
+	</select>
+	
+	
+	<insert id="insertNoticeInfo">
+	INSERT INTO TB_NOTICE_INFO(
+	   NOTICE_SEQ, USER_ID, NOTICE_TYPE, TITLE, CONTENT, FILE_PATH, FILE_NAME, DEL_YN, REG_DT, REG_USER_ID, UPD_DT, UPD_USER_ID,
+	    )
+	 VALUES(
+	   (SELECT NVL(MAX(NOTICE_SEQ),0)+1 FROM TB_NOTICE_INFO ), 
+	   #{userId},
+	   #{noticeType},
+	   #{title},
+	   #{content},
+	   #{filePath},
+	   #{fileName},
+	   #{delYn},
+	   SYSDATE,
+	   #{userId},
+	   SYSDATE,
+	   #{userId}
+	   
+	  	)
+	  	
+	
+	
+	</insert>
+	
+</mapper>

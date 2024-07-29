@@ -1,0 +1,32 @@
+package com.qms.approve.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.qms.approve.dao.ApproveDao;
+import com.qms.approve.dao.NoticeDao;
+import com.qms.approve.vo.NoticeVO;
+import com.qms.table.vo.approve.AprvInfoVO;
+import com.qms.table.vo.approve.NoticeInfoVO;
+
+@Service
+public class NoticeService {
+
+	@Autowired
+	NoticeDao dao;
+
+	public int insertNoticeInfo(NoticeVO vo) throws Exception {
+		
+		return dao.insertNoticeInfo(vo);
+	}
+
+	public NoticeVO selectNoticeInfo(NoticeVO vo) throws Exception {
+		
+		return dao.selectNoticeInfo(vo);
+	}
+	
+	
+	}
+

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qms.approve.dao.NoticeDao">
+	
+	
+	<resultMap type="com.qms.approve.vo.NoticeVO" id="noticeMap">
+	    <result property="noticeSeq" 	            column="NOTICE_SEQ" />
+		<result property="userId"           	    column="USER_ID" />
+		<result property="noticeType"     	        column="NOTICE_TYPE" />
+		<result property="title"    	            column="TITLE" />
+		<result property="content"  	     	    column="CONTENT" />
+		<result property="filePath" 	            column="FILE_PATH" />
+		<result property="fileName"                 column="FILE_NAME" />
+		<result property="delYn"            	    column="DEL_YN" />
+		<result property="regDt"            	    column="REG_DT" />
+		<result property="regUserId"            	column="REG_USER_ID" />
+		<result property="updDt"            	    column="UPD_DT" />
+		<result property="updUserId"            	column="UPD_USER_ID" />
+		<result property="userName"            	    column="USER_NAME" />
+		<result property="deptCd"            	    column="DEPT_CD" />
+		<result property="deptName"            	    column="DEPT_NAME" />
+	    <result property="noticeTypeName"           column="NOTICE_TYPE_NAME" />
+	    <result property="modifyYn"           		column="MODIFY_YN" />
+	  </resultMap>
+
+	<select id="selectNoticeInfo"  resultMap = "noticeMap">
+	      SELECT 
+	      RN,
+	      NOTICE_SEQ,
+          USER_ID,
+          NOTICE_TYPE,
+          NOTICE_TYPE_NAME,
+          TITLE,
+          CONTENT,
+          FILE_PATH,
+          FILE_NAME,
+          DEL_YN,
+          REG_DT,
+          REG_USER_ID,
+          UPD_DT,
+          UPD_USER_ID,
+          USER_NAME,
+          DEPT_CD,
+          DEPT_NAME,
+          MODIFY_YN 
+	          
+	   FROM (
+     SELECT  
+        ROWNUM AS RN,
+        A.NOTICE_SEQ,
+        A.USER_ID,
+        A.NOTICE_TYPE,
+        (SELECT COM_NAME FROM TB_COM_CODE WHERE COM_GRP_CD = 'NT01' AND COM_CD = A.NOTICE_TYPE) AS NOTICE_TYPE_NAME,
+        A.TITLE,
+        A.CONTENT,
+        A.FILE_PATH,
+        A.FILE_NAME,
+        A.DEL_YN,
+        A.REG_DT,
+        A.REG_USER_ID,
+        A.UPD_DT,
+        A.UPD_USER_ID,
+        B.USER_NAME,
+        C.DEPT_CD,
+        C.DEPT_NAME,
+        CASE WHEN A.USER_ID = #{userId} THEN 'Y' ELSE 'N' END AS MODIFY_YN 
+  	  FROM TB_NOTICE_INFO A
+  	  JOIN TB_USER_INFO B ON A.USER_ID = B.USER_ID 
+   	  JOIN TB_DEPT_INFO C ON B.DEPT_CD = C.DEPT_CD
+   	     <if test="title!=null and title!=''">
+		and TITLE like '%'||#{title}||'%'
+		</if>
+		 <if test="noticeType!=null and noticeType!=''">
+		and NOTICE_TYPE = #{noticeType}
+		</if>
+         ) 
+	     WHERE RN<![CDATA[ > ]]>(#{currentPage}-1)*#{countPerPage} 
+		 AND RN<![CDATA[ <= ]]>#{currentPage}*#{countPerPage}
+		 
+		
+	
+	</select>
+
+	
+	
+	<insert id="insertNoticeInfo">
+	INSERT INTO TB_NOTICE_INFO(
+	   NOTICE_SEQ, USER_ID, NOTICE_TYPE, TITLE, CONTENT,
+	   <if test="filePath!=null and filePath!=''"> 
+	   FILE_PATH, FILE_NAME,
+	   </if> 
+	   DEL_YN, REG_DT, REG_USER_ID
+	    )
+	 VALUES(
+	   (SELECT NVL(MAX(NOTICE_SEQ),0)+1 FROM TB_NOTICE_INFO ), 
+	   #{userId},
+	   #{noticeType},
+	   #{title},
+	   #{content},
+	   <if test="filePath!=null and filePath!=''">
+	   #{filePath},
+	   #{fileName},
+	   </if>
+	   'N',
+	   SYSDATE,
+	   #{userId}
+	 )
+	 	 
+	</insert>
+	
+	<select id="selectNoticeDtl"  resultMap = "noticeMap">
+	       SELECT  
+	         NOTICE_TYPE,
+             TITLE,
+	         CONTENT,
+	         FILE_NAME,
+	         CASE WHEN USER_ID = #{userId} THEN 'Y' ELSE 'N' END MODIFY_YN
+	     FROM TB_NOTICE_INFO
+	     WHERE NOTICE_SEQ = #{noticeSeq}
+	 
+	</select>
+	
+	<update id="updateNoticeInfo" >
+	
+	      UPDATE TB_NOTICE_INFO
+	      SET 
+	        NOTICE_TYPE = #{noticeType},
+	        TITLE = #{title},
+	        CONTENT = #{content},
+	        FILE_NAME = #{fileName}
+	      WHERE NOTICE_SEQ = #{noticeSeq} 
+	
+	</update>
+	
+	<delete id="deleteNoticeInfo">
+		DELETE FROM TB_NOTICE_INFO 
+	    WHERE NOTICE_SEQ = #{noticeSeq} 
+	
+		
+	</delete>
+	
+	<select id="selectTotalNoticeCount" resultType="integer">
+
+		SELECT COUNT(*)
+		FROM 
+		    TB_NOTICE_INFO A
+		INNER JOIN 
+		    TB_USER_INFO C ON A.USER_ID = C.USER_ID
+		INNER JOIN 
+		    TB_DEPT_INFO B ON C.DEPT_CD = B.DEPT_CD
+		
+  		
+	</select>
+	
+</mapper>

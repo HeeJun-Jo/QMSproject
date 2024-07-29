@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qms.login.dao.LoginDao">
+	
+	<resultMap type="com.qms.table.vo.user.UserInfoVO" id="userMap">
+		<result property="userId" column="user_id"/>
+		<result property="userName" column="user_name"/>
+		<result property="deptCd" column="dept_cd"/>
+		<result property="userPwd" column="user_pwd"/>
+		<result property="phone" column="phone"/>
+		<result property="email" column="email"/>
+		<result property="leaveDt" column="leave_dt"/>
+		<result property="leaveYn" column="leave_yn"/>
+	</resultMap>
+	
+	<select id="selectUserInfo" resultMap="userMap">
+		    SELECT 
+				A.USER_ID,
+				A.USER_PWD,
+	            A.USER_NAME,
+	            C.COM_NAME
+				FROM TB_USER_INFO A, TB_COM_CODE C
+				WHERE A.USER_ID = #{userId}
+	            AND A.POSITION_CD = C.COM_CD
+	            AND C.COM_GRP_CD = 'US01'
+	</select>
+	
+	<select id="selectUserPwdInfo" resultMap="userMap">
+		SELECT
+		    USER_PWD
+		    FROM TB_USER_INFO
+		    WHERE USER_ID = #{userId}
+		    AND USER_NAME = #{userName}
+	</select>
+	
+</mapper>

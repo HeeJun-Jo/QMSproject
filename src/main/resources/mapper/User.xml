@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qms.user.dao.UserDao">
+					 
+	<resultMap type="com.qms.user.vo.UserVO" id="userVOMap">
+		<result property="userId" column="user_id"/>
+		<result property="userName" column="user_name"/>
+		<result property="deptCd" column="dept_cd"/>
+		<result property="userPwd" column="user_pwd"/>
+		<result property="phone" column="phone"/>
+		<result property="email" column="email"/>
+		<result property="leaveDt" column="leave_dt"/>
+		<result property="leaveYn" column="leave_yn"/>
+		<result property="deptName" column="dept_name"/>
+		<result property="comCd" column="com_cd"/>
+		<result property="comName" column="com_name"/>
+		<result property="comGrpCd" column="com_grp_cd"/>
+		
+	</resultMap>
+	
+	<select id="selectUserSearchCount" resultType="integer">
+		SELECT COUNT(*)
+			FROM TB_USER_INFO A, TB_DEPT_INFO B, TB_COM_CODE C
+			    WHERE A.DEPT_CD = B.DEPT_CD
+			    AND A.POSITION_CD = C.COM_CD
+			    AND C.COM_GRP_CD = 'US01'
+			   	AND A.LEAVE_YN = 'N'
+			<if test="userName != null and userName != ''">
+			    AND A.USER_NAME like '%'||#{userName}||'%'
+			</if>
+	</select>
+	
+	<select id="selectUserSearch" resultMap="userVOMap">
+	    SELECT
+	    	USER_ID,
+	        USER_NAME,
+	        DEPT_NAME,
+	        COM_NAME,
+	        LEAVE_YN
+	    FROM (
+			SELECT
+				ROWNUM AS RN,
+	    		A.USER_ID,
+	        	A.USER_NAME,
+	        	B.DEPT_NAME,
+	        	C.COM_NAME,
+	        	A.LEAVE_YN
+	    FROM TB_USER_INFO A, TB_DEPT_INFO B, TB_COM_CODE C
+	    	WHERE A.DEPT_CD = B.DEPT_CD
+	    	AND A.POSITION_CD = C.COM_CD
+	    	AND C.COM_GRP_CD = 'US01'
+	    	AND A.LEAVE_YN = 'N'
+	    <if test="userName != null and userName != ''">
+	        AND A.USER_NAME like '%'||#{userName}||'%'
+	    </if>
+	    )
+		    WHERE RN <![CDATA[ > ]]> (#{currentPage}-1)*#{countPerPage} 
+		    AND RN <![CDATA[ <= ]]> #{currentPage}*#{countPerPage}
+	</select>
+
+	
+</mapper>

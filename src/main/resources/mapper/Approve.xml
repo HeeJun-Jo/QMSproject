@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qms.approve.dao.ApproveDao">
+	
+	<resultMap type="com.qms.table.vo.approve.AprvInfoVO" id="aprvInfoMap">
+		<result property="docNo" 			column="DOC_NO"/>
+		<result property="userId" 			column="USER_ID"/>
+		<result property="docType" 			column="DOC_TYPE"/>
+		<result property="preserveYear" 	column="PRESERVE_YEAR"/>
+		<result property="docClass" 		column="DOC_CLASS"/>
+		<result property="docStatus" 		column="DOC_STATUS"/>
+		<result property="title" 			column="TITLE"/>
+		<result property="content" 			column="CONTENT"/>
+	</resultMap>
+	<resultMap type="com.qms.table.vo.user.UserInfoVO" id="userMap">
+		<result property="userId" 			column="USER_ID"/>
+		<result property="userName" 		column="USER_NAME"/>
+		<result property="deptCd" 			column="DEPT_CD"/>
+		<result property="positionCd" 		column="POSITION_CD"/>
+		<result property="userPwd" 			column="USER_PWD"/>
+		<result property="phone" 			column="PHONE"/>
+		<result property="email" 			column="EMAIL"/>
+		<result property="leaveDt" 			column="LEAVE_DT"/>
+		<result property="leaveYn" 			column="LEAVE_YN"/>
+	</resultMap>
+	<resultMap type="com.qms.table.vo.user.DeptInfoVO" id="deptMap">
+		<result property="deptCd" 			column="DEPT_CD"/>
+		<result property="deptName" 		column="DEPT_NAME"/>
+		<result property="upDeptCd" 		column="UP_DEPT_CD"/>
+		<result property="delYn" 			column="DEL_YN"/>
+	</resultMap>
+	<resultMap type="com.qms.table.vo.common.ComCodeVO" id="comCodeMap">
+		<result property="comGrpCd" 		column="COM_GRP_CD"/>
+		<result property="comCd" 			column="COM_CD"/>
+		<result property="comName" 			column="COM_NAME"/>
+		<result property="memo" 			column="MEMO"/>
+		<result property="delYn" 			column="DEL_YN"/>
+	</resultMap>
+	<resultMap type="com.qms.approve.vo.AprvVO" id="aprvMap">
+		<result property="docNo" 			column="DOC_NO"/>
+		<result property="userId" 			column="USER_ID"/>
+		<result property="docType" 			column="DOC_TYPE"/>
+		<result property="preserveYear" 	column="PRESERVE_YEAR"/>
+		<result property="docClass" 		column="DOC_CLASS"/>
+		<result property="docStatus" 		column="DOC_STATUS"/>
+		<result property="title" 			column="TITLE"/>
+		<result property="content" 			column="CONTENT"/>
+		<result property="comName" 			column="COM_NAME"/>
+		<result property="userName" 		column="USER_NAME"/>
+		<result property="deptCd" 			column="DEPT_CD"/>
+		<result property="positionCd" 		column="POSITION_CD"/>
+		<result property="userPwd" 			column="USER_PWD"/>
+		<result property="phone" 			column="PHONE"/>
+		<result property="email" 			column="EMAIL"/>
+		<result property="leaveDt" 			column="LEAVE_DT"/>
+		<result property="leaveYn" 			column="LEAVE_YN"/>
+		<result property="deptName" 		column="DEPT_NAME"/>
+		<result property="upDeptCd" 		column="UP_DEPT_CD"/>
+		<result property="delYn" 			column="DEL_YN"/>
+		<result property="regDt" 			column="REG_DT"/>
+		<result property="opinion" 			column="OPINION"/>
+		<result property="searchType"		column="SEARCHTYPE"/>
+	</resultMap>
+	<resultMap type="com.qms.table.vo.approve.AprvFileVO" id="aprvFileMap">
+		<result property="docNo" 		column="DOC_NO"/>
+		<result property="fileSeq" 		column="FILE_SEQ"/>
+		<result property="filePath" 	column="FILE_PATH"/>
+		<result property="fileName" 	column="FILE_NAME"/>
+		<result property="fileSize" 	column="FILE_SIZE"/>
+	</resultMap>
+	
+	<select id="selectTotalAprvCount" resultType="integer">
+		SELECT COUNT(*)
+		FROM TB_APRV_LINE A,
+		(
+		SELECT DOC_STATUS, DOC_NO
+		FROM TB_APRV_INFO
+		WHERE
+			(#{searchType} = 0 AND DOC_STATUS = '02') OR
+    		(#{searchType} = 1 AND DOC_STATUS IN ('03', '04'))
+		)B
+		WHERE A.USER_ID = #{userId}
+		AND A.DOC_NO = B.DOC_NO
+	</select>
+	<select id="selectTotalMyAprvCount" resultType="integer">
+		SELECT COUNT(*)
+		FROM TB_APRV_INFO
+		WHERE USER_ID = #{userId}
+	</select>
+	<select id="selectApproveList" resultMap="aprvMap">
+		SELECT F.DOC_NO, F.COM_NAME, F.TITLE, F.USER_NAME, F.REG_DT, F.DEPT_NAME, F.DOC_STATUS
+		FROM (
+			SELECT ROWNUM RN, A.DOC_NO, D.COM_NAME, A.TITLE, B.USER_NAME, TO_CHAR(A.REG_DT, 'YYYY.MM.DD') AS REG_DT, C.DEPT_NAME, A.DOC_STATUS
+			FROM TB_APRV_INFO A
+		JOIN (
+    		SELECT USER_ID, USER_NAME, DEPT_CD
+    		FROM TB_USER_INFO
+		) B ON A.USER_ID = B.USER_ID
+		JOIN (
+		    SELECT DEPT_CD, DEPT_NAME
+		    FROM TB_DEPT_INFO
+		) C ON B.DEPT_CD = C.DEPT_CD
+		JOIN (
+		    SELECT COM_GRP_CD, COM_CD, COM_NAME
+		    FROM TB_COM_CODE
+		) D ON A.DOC_TYPE = D.COM_CD AND D.COM_GRP_CD = 'AP01'
+		JOIN (
+    		SELECT USER_ID, DOC_NO
+    		FROM TB_APRV_LINE
+		    WHERE USER_ID = #{userId}
+		) E ON A.DOC_NO = E.DOC_NO
+		WHERE
+    		(#{searchType} = 0 AND A.DOC_STATUS = '02') OR
+    		(#{searchType} = 1 AND A.DOC_STATUS IN ('03', '04'))
+		)F
+		WHERE RN<![CDATA[ > ]]>(#{currentPage}-1)*#{countPerPage} 
+		AND RN<![CDATA[ <= ]]>#{currentPage}*#{countPerPage}
+	</select>
+	<select id="selectMyApproveList" resultMap="aprvMap">
+		SELECT E.DOC_NO, E.COM_NAME, E.TITLE, E.USER_NAME, E.REG_DT, E.DEPT_NAME, E.DOC_STATUS
+		FROM (
+		SELECT ROWNUM RN, A.DOC_NO, D.COM_NAME, A.TITLE, B.USER_NAME, TO_CHAR(A.REG_DT, 'YYYY.MM.DD') AS REG_DT, C.DEPT_NAME, A.DOC_STATUS
+		FROM TB_APRV_INFO A,
+		(
+		SELECT USER_ID, USER_NAME, DEPT_CD
+		FROM TB_USER_INFO
+		)B,
+		(
+		SELECT DEPT_CD, DEPT_NAME
+		FROM TB_DEPT_INFO
+		)C,
+		(
+		SELECT COM_GRP_CD, COM_CD, COM_NAME
+		FROM TB_COM_CODE
+		)D 
+		WHERE A.USER_ID = B.USER_ID
+		AND A.USER_ID = #{userId}
+		AND B.DEPT_CD = C.DEPT_CD
+		AND A.DOC_TYPE = D.COM_CD
+		AND D.COM_GRP_CD = 'AP01'
+		)E
+		WHERE RN<![CDATA[ > ]]>(#{currentPage}-1)*#{countPerPage} 
+		AND RN<![CDATA[ <= ]]>#{currentPage}*#{countPerPage}
+	</select>
+	<select id="selectApproveDtl" resultMap="aprvMap">
+		SELECT A.DOC_NO, TO_CHAR(A.REG_DT, 'YYYY.MM.DD') AS REG_DT, C.USER_NAME, B.DEPT_NAME, A.TITLE, A.CONTENT,
+		(SELECT COM_NAME FROM TB_COM_CODE WHERE COM_GRP_CD = 'AP01' AND DOC_TYPE = COM_CD) DOC_TYPE,
+		(SELECT COM_NAME FROM TB_COM_CODE WHERE COM_GRP_CD = 'AP03' AND DOC_CLASS = COM_CD) DOC_CLASS,
+		(SELECT COM_NAME FROM TB_COM_CODE WHERE COM_GRP_CD = 'AP04' AND DOC_STATUS = COM_CD) DOC_STATUS,
+		(SELECT COM_NAME FROM TB_COM_CODE WHERE COM_GRP_CD = 'AP02' AND PRESERVE_YEAR = COM_CD) PRESERVE_YEAR
+		FROM TB_APRV_INFO A,
+		(
+		SELECT DEPT_CD, DEPT_NAME
+		FROM TB_DEPT_INFO
+		)B,
+		(
+		SELECT USER_ID, DEPT_CD, USER_NAME
+		FROM TB_USER_INFO
+		)C
+		WHERE A.DOC_NO = #{docNo}
+		AND A.USER_ID = C.USER_ID
+		AND B.DEPT_CD = C.DEPT_CD
+	</select>
+	<select id="selectAprvLineList" resultMap="aprvMap">
+		SELECT C.USER_NAME, B.DEPT_NAME, A.USER_ID,
+		(SELECT COM_NAME FROM TB_COM_CODE WHERE COM_GRP_CD = 'AP05' AND APRV_TYPE = COM_CD) DOC_TYPE,
+		(SELECT COM_NAME FROM TB_COM_CODE WHERE COM_GRP_CD = 'AP06' AND APRV_STATUS = COM_CD) DOC_STATUS,
+		(SELECT COM_NAME FROM TB_COM_CODE WHERE COM_GRP_CD = 'US01' AND C.POSITION_CD = COM_CD) POSITION_CD
+		FROM TB_APRV_LINE A,
+		(
+		SELECT DEPT_CD, DEPT_NAME
+		FROM TB_DEPT_INFO
+		)B,
+		(
+		SELECT USER_ID, USER_NAME, DEPT_CD, POSITION_CD
+		FROM TB_USER_INFO
+		)C
+		WHERE A.DOC_NO = #{docNo}
+		AND A.USER_ID = C.USER_ID
+		AND B.DEPT_CD = C.DEPT_CD
+	</select>
+	<select id="selectAprvFileList" resultMap="aprvFileMap">
+		SELECT FILE_NAME, FILE_SIZE
+		FROM TB_APRV_FILE
+		WHERE DOC_NO = #{docNo}
+	</select>
+	<update id="updateApproved">
+		UPDATE TB_APRV_LINE
+		SET APRV_STATUS = '03', OPINION = #{opinion}
+		WHERE USER_ID = #{userId}
+		AND DOC_NO = #{docNo}
+	</update>
+	<update id="updateApproving">
+		UPDATE TB_APRV_LINE A
+		SET A.APRV_STATUS = '02'
+		WHERE A.DOC_NO = #{docNo}
+		AND EXISTS 
+		(
+    	SELECT APRV_SEQ
+    	FROM TB_APRV_LINE B
+    	WHERE B.DOC_NO = #{docNo}
+    	AND B.USER_ID = #{userId}
+   	 	AND A.APRV_SEQ = B.APRV_SEQ + 1
+		)
+	</update>
+	<update id="updateAprvReject">
+		UPDATE TB_APRV_LINE
+		SET APRV_STATUS = '04', OPINION = #{opinion}
+		WHERE USER_ID = #{userId}
+		AND DOC_NO = #{docNo}
+	</update>
+	<update id="updateDocApproved">
+		UPDATE TB_APRV_INFO
+		SET DOC_STATUS = '03'
+		WHERE DOC_NO = #{docNo}
+		AND NOT EXISTS(
+		SELECT APRV_STATUS
+		FROM TB_APRV_LINE
+		WHERE DOC_NO = #{docNo}
+		AND APRV_STATUS IN ('01','02','04')
+		)
+	</update>
+	<update id="updateDocReject">
+		UPDATE TB_APRV_INFO
+		SET DOC_STATUS = '04'
+		WHERE DOC_NO = #{docNo}
+		AND EXISTS(
+		SELECT APRV_STATUS
+		FROM TB_APRV_LINE
+		WHERE DOC_NO = #{docNo}
+		AND APRV_STATUS = '04'
+		)
+	</update>
+	
+	<select id="selectNewDocNo" resultType="String">
+		SELECT TO_CHAR(SYSDATE, 'YYMM') || LPAD(NVL(TO_NUMBER(SUBSTR(MAX(doc_no), 5)), 0) + 1, 3, '0') 
+			FROM TB_APRV_INFO
+		WHERE DOC_NO LIKE TO_CHAR(SYSDATE,'YYMM')||'%'
+	</select>
+	<insert id="insertDocWirte">
+		INSERT INTO TB_APRV_INFO
+			(DOC_NO, USER_ID, DOC_TYPE, PRESERVE_YEAR, DOC_CLASS, DOC_STATUS, TITLE, CONTENT, REG_DT, REG_USER_ID)
+			VALUES(
+			    #{docNo},
+			    #{userId},
+			    #{docType},
+			    #{preserveYear},
+			    #{docClass},
+			    #{docStatus},
+			    #{title},
+			    #{content},
+			    SYSDATE,
+			    #{userId}
+			)
+	</insert>
+	
+	<select id="selectMaxAprvSeq" resultType="String">
+	    SELECT NVL(MAX(APRV_SEQ), 0)
+	    FROM TB_APRV_LINE
+	    WHERE DOC_NO = #{docNo}
+	</select>
+	<insert id="insertAprvLine">
+	    INSERT INTO TB_APRV_LINE
+	        (DOC_NO, APRV_SEQ, USER_ID, APRV_TYPE, APRV_STATUS, REG_DT, REG_USER_ID)
+	    VALUES
+	        (#{docNo}, 
+	        ( SELECT NVL(MAX(APRV_SEQ), 0) + 1 FROM TB_APRV_LINE WHERE DOC_NO = #{docNo} ), 
+	        #{userId}, #{aprvType}, #{aprvStatus}, SYSDATE, #{regUserId})
+	</insert>
+	
+	<select id="selectMaxFileSeq" resultType="String">
+		SELECT NVL(MAX(FILE_SEQ), 0)
+	    FROM TB_APRV_FILE
+	    WHERE DOC_NO = #{docNo}
+	</select>
+	<insert id="insertAprvFile">
+	    INSERT INTO TB_APRV_FILE
+	        (DOC_NO, FILE_SEQ, FILE_PATH, FILE_NAME, REG_DT, REG_USER_ID, FILE_SIZE)
+	    VALUES
+	        (#{docNo}, 
+	        ( SELECT NVL(MAX(FILE_SEQ), 0) + 1 FROM TB_APRV_FILE WHERE DOC_NO = #{docNo} ), 
+	        #{filePath}, #{fileName}, SYSDATE, #{regUserId}, #{fileSize})
+	</insert>
+
+</mapper> 

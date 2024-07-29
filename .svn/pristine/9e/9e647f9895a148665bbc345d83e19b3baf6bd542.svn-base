@@ -1,0 +1,179 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>기안서 작성</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="/assets/img/favicon.png" rel="icon">
+  <link href="/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.gstatic.com" rel="preconnect">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+  <link href="/assets/vendor/quill/quill.snow.css" rel="stylesheet">
+  <link href="/assets/vendor/quill/quill.bubble.css" rel="stylesheet">
+  <link href="/assets/vendor/remixicon/remixicon.css" rel="stylesheet">
+  <link href="/assets/vendor/simple-datatables/style.css" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="/assets/css/style.css" rel="stylesheet">
+</head>
+
+<body>
+
+  <%@ include file="../layout/menu.jsp" %>
+
+  <main id="main" class="main container">
+
+    <div class="pagetitle">
+      <h1>공지사항</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="index.html">홈</a></li>
+          <li class="breadcrumb-item">전자결재</li>
+          <li class="breadcrumb-item active">공지사항</li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section">
+      <div class="card">
+        <div class="card-body" >
+          <h5 class="card-title">공지사항</h5>
+          <form id="dataform">
+            <div class="row mb-3">
+              <label for="title" class="col-sm-2 col-form-label">제목</label>
+              <div class="col-sm-4">
+                <input type="text" class="form-control" id="title" name="title">
+              </div>
+              <label for="notice-type" class="col-sm-2 col-form-label">공지종류</label>
+              <div class="col-sm-4">
+                <select class="form-control" id="notice-type" name="notice-type">
+                  <option value="기타">기타</option>
+                  <option value="등등">등등</option>
+                </select>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-sm-12 text-end">
+                <button type="button" class="btn btn-info" onclick="search()">조회</button>
+                <button type="button" class="btn btn-primary" onclick="newNotice()">신규</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">공지사항 목록</h5>
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th scope="col">NO</th>
+                <th scope="col">공지종류</th>
+                <th scope="col">제목</th>
+                <th scope="col">부서</th>
+                <th scope="col">작성자</th>
+                <th scope="col">첨부파일</th>
+                <th scope="col">등록일</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Data rows go here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <!-- Modal -->
+      <div class="modal fade" id="noticeTable" tabindex="-1" aria-labelledby="boardInfoLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="boardInfoLabel">공지사항</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table table-hover">
+                <tr>
+                  <th scope="col">제목</th>
+                  <td><input type="text" class="form-control" id="titleTxt"></td>
+                </tr>
+                <tr>
+                  <th scope="col">공지종류</th>
+                  <td>
+                    <select class="form-control" id="noticeType" name="noticeType">
+                      <option value="기타">기타</option>
+                      <option value="등등">등등</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="col">내용</th>
+                  <td>
+                    <div id="editor-container" style="height: 300px;"></div>
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="col">첨부파일</th>
+                  <td><input type="file" id="addFile" name="addFile"></td>
+                </tr>
+              </table>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" onclick="saveData();">저장</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <script src="/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+      <script src="/assets/vendor/simple-datatables/simple-datatables.js"></script>
+      <script src="/assets/vendor/quill/quill.min.js"></script>
+
+      <script>
+        var quill;
+
+        function newNotice(){
+          document.getElementById('titleTxt').value = '';
+          document.getElementById('noticeType').value = '';
+          quill.root.innerHTML = '';
+          document.getElementById('addFile').value = '';
+          
+          var myModal = new bootstrap.Modal(document.getElementById('noticeTable'));
+          myModal.show();
+        }
+
+        function saveData(){
+          var content = quill.root.innerHTML;
+          var formData = new FormData(document.getElementById('dataform'));
+          formData.append('content', content);
+
+          call_server(formData, "/board/insertNoticeInfo/", saveData);
+        }
+
+        document.addEventListener('DOMContentLoaded', function(){
+          quill = new Quill('#editor-container', {
+            theme: 'snow'
+          });
+        });
+      </script>
+    </section>
+  </main>
+
+  <!-- Template Main JS File -->
+  <script src="/assets/js/main.js"></script>
+</body>
+</html>

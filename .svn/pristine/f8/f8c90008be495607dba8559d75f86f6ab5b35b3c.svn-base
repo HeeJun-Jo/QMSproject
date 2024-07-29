@@ -1,0 +1,48 @@
+#menu.jsp
+message.menu.electricAprv = Electric-Aprv
+message.menu.aprvSearch = Aprv-Search
+message.menu.aprvWrite = Aprv-Write
+message.menu.notice = Notice
+message.menu.productManagement = Product-Management
+message.menu.itemManagement = Item-Management
+message.menu.bomSearch = BOM-Search
+message.menu.partnerProductManagement = Partner-Product-Management
+message.menu.processManagement = Process-Management
+message.menu.receivingManagement = Receiving-Management
+message.menu.receivingReg = Receiving-Reg
+message.menu.receivingSearch = Receiving-Search
+message.menu.stockManagement = Stock-Management
+message.menu.stockSearch = Stock-Search
+message.menu.orderManagement = Order-Management
+message.menu.partnerOrderManagement = Partner-Order-Management
+message.menu.freeReceivingManagement = Free-Receiving-Management
+message.menu.productOrder = Product-Order
+message.menu.productFreeReceiving = Product-Free-Receiving
+message.menu.productionManagement = Production-Management
+message.menu.productionPlanReg = Production-Plan-Reg
+message.menu.productionPlanSearch = Production-Plan-Search
+message.menu.productionPerformenceSearch = Production-Performence-Search
+message.menu.materialRequirementsPlanning = MRP
+
+#login.jsp
+message.introduction.id = Manager ID
+message.introduction.password = Password
+message.introduction.name = Name
+message.checkbox.remember = Remember
+message.button.login = Login
+message.button.findPassword = Find Password
+message.validation.enterId = Please enter your ID
+message.validation.enterPassword = Please enter your Password
+message.validation.enterName = Please enter your Name
+message.validation.checkPassword = Check your Password
+
+#aprv02.jsp
+message.aprv02.home = Home
+message.aprv02.aprving = Approving
+message.aprv02.aprved = Approved
+message.aprv02.myAprv = My Approve
+message.aprv02.documentType = DocumentType
+message.aprv02.title = Title
+message.aprv02.department = Department
+message.aprv02.writer = Writer
+message.aprv02.regDate = RegDate

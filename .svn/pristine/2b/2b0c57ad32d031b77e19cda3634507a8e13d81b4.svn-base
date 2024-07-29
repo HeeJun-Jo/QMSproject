@@ -1,0 +1,24 @@
+package com.qms.notice.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.qms.approve.dao.ApproveDao;
+import com.qms.notice.dao.NoticeDao;
+import com.qms.table.vo.approve.AprvInfoVO;
+import com.qms.table.vo.approve.NoticeInfoVO;
+
+@Service
+public class NoticeService {
+
+	@Autowired
+	NoticeDao dao;
+
+	public int insertNoticeInfo(NoticeInfoVO vo) throws Exception {
+		// TODO 자동 생성된 메소드 스텁
+		return dao.insertNoticeInfo(vo);
+	}
+	
+	
+	}
+

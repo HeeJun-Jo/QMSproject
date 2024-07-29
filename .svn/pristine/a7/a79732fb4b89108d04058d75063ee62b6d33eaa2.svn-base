@@ -1,0 +1,11 @@
+package com.qms.table.vo.common;
+
+import lombok.Data;
+
+@Data
+public class BaseVO {
+	private String regDt;			//등록일
+	private String regUserId;		//등록자
+	private String updDt;			//수정일
+	private String updUserId;		//수정자
+}

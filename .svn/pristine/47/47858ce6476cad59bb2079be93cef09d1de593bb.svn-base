@@ -1,0 +1,21 @@
+package com.qms.login.service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.qms.login.dao.LoginDao;
+import com.qms.table.vo.user.UserInfoVO;
+
+@Service
+public class LoginService {
+
+	@Autowired
+	LoginDao dao;
+	
+	public UserInfoVO selectUserInfo(UserInfoVO vo) throws Exception{
+		return dao.selectUserInfo(vo);
+	}
+	
+	public UserInfoVO selectUserPwdInfo(UserInfoVO vo) throws Exception{
+		return dao.selectUserPwdInfo(vo);
+	}
+}

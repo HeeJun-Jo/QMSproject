@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qms.pdf.dao.ItextPdfDao">
+
+		<resultMap type="com.qms.pdf.vo.ItextPdfVO" id="pdfMap">
+		<result property="invoiceNo" column="INVOICE_NO" />
+		<result property="shipper" column="SHIPPER" />
+		<result property="consignee" column="CONSIGNEE" />
+		<result property="notiParty" column="NOTI_PARTY" />
+		<result property="portLoad" column="PORT_LOAD" />
+		<result property="finalDest" column="FINAL_DEST" />
+		<result property="remark" column="REMARK" />
+		<result property="inQty" column="IN_QTY" />
+		<result property="inPrice" column="IN_PRICE" />
+		<result property="rcvNo" column="RCV_NO" />
+		<result property="totalPrice" column="TOTAL_PRICE" />
+		
+	</resultMap>
+		
+	<select id="selectInvoiceData" resultMap="pdfMap">
+		SELECT 
+		       A.INVOICE_NO, 
+		       A.SHIPPER, 
+		       A.CONSIGNEE, 
+		       A.NOTI_PARTY, 
+		       A.PORT_LOAD, 
+		       A.FINAL_DEST,
+		       NVL(A.REMARK,'-')REMARK, 
+		       B.IN_QTY, 
+		       B.IN_PRICE
+		      
+		FROM 
+    		TB_RCV_INFO A
+		JOIN 
+    		TB_RCV_ITEM B ON A.RCV_NO = B.RCV_NO
+      
+		   WHERE INVOICE_NO = #{invoiceNo}
+		    
+	</select>
+
+
+</mapper>

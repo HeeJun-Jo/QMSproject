@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qms.pplan.dao.PplanDao">
+					 
+	<resultMap type="com.qms.pplan.vo.PplanVO" id="planMap">
+	    <result property="compCd" 		column="COMP_CD"/>
+	    <result property="planDt" 		column="PLAN_DT"/>
+	    <result property="planQty" 		column="PLAN_QTY"/>
+	    <result property="orderQty"	 	column="ORDER_QTY"/>
+	    <result property="regDt" 		column="REG_DT"/>
+	    <result property="regUserId" 	column="REG_USER_ID"/>
+	    <result property="updDt" 		column="UPD_DT"/>
+	    <result property="updUserId" 	column="UPD_USER_ID"/>
+	    <result property="planYear" 	column="PLAN_YEAR"/>
+	    <result property="planMonth" 	column="PLAN_MONTH"/>
+	    <result property="itemCd" 		column="ITEM_CD"/>
+	    <result property="itemName" 	column="ITEM_NAME"/>
+	    <result property="compName" 	column="COMP_NAME"/>
+	    <result property="allQty" 	column="All_QTY"/>
+	</resultMap>
+			
+		<select id="selectPlanList" resultMap="planMap">
+			SELECT
+		        A.COMP_CD,
+		        A.COMP_NAME,
+		        B.ITEM_CD,
+		        C.ITEM_NAME,
+		        D.PLAN_DT,
+		        D.PLAN_QTY,
+		        D.ORDER_QTY
+		    FROM
+		        TB_PARTNER_INFO A, TB_PARTNER_ITEM B, TB_ITEM_INFO C, TB_PLAN_INFO D
+            WHERE A.COMP_CD = B.COMP_CD
+            AND A.COMP_CD = D.COMP_CD(+)
+		    AND B.ITEM_CD = C.ITEM_CD
+            AND C.ITEM_CD = D.ITEM_CD(+)
+			AND A.COMP_NAME = #{compName}
+			    <if test="itemCd != null and itemCd != ''">
+			            AND B.ITEM_CD LIKE '%' || #{itemCd} || '%'
+			        </if>
+			        <if test="planYear != null and planYear != ''">
+			            AND TO_CHAR(D.PLAN_DT(+), 'yyyy') = #{planYear}
+			        </if>
+			        <if test="planMonth != null and planMonth != ''">
+			            AND TO_CHAR(D.PLAN_DT(+), 'mm') = #{planMonth}
+			        </if>
+			ORDER BY
+   				D.PLAN_DT, C.ITEM_CD
+		</select>
+		
+		<delete id="deletePlanInfo">
+		    DELETE FROM TB_PLAN_INFO
+		    WHERE COMP_CD = #{compCd}
+		    AND TO_CHAR(PLAN_DT,'YYYYMM') = #{planYear}||#{planMonth}
+		</delete>
+
+		
+		<update id="insertPlanInfo">
+	        <foreach collection="qtylist" item="item" open="INSERT ALL" close="SELECT * FROM DUAL" separator=" ">
+	            INTO TB_PLAN_INFO
+	            	(COMP_CD, PLAN_DT, ITEM_CD, PLAN_QTY, ORDER_QTY, REG_DT, REG_USER_ID)
+	            VALUES 
+	            	(#{compCd}, #{item.planDt}, #{item.itemCd}, #{item.planQty}, #{item.orderQty}, SYSDATE, #{regUserId})
+	        </foreach>
+	    </update>
+	    
+	    <select id="selectPlanListExcel" resultType="HashMap">
+			SELECT
+			    A.COMP_CD,
+			    A.COMP_NAME,
+			    B.ITEM_CD,
+			    C.ITEM_NAME,
+			    LISTAGG(TO_CHAR(D.PLAN_DT, 'DD') || '-' || D.PLAN_QTY || '-' || D.ORDER_QTY, ',') WITHIN GROUP (ORDER BY D.PLAN_DT) AS ALL_QTY
+			 FROM
+			        TB_PARTNER_INFO A, TB_PARTNER_ITEM B, TB_ITEM_INFO C, TB_PLAN_INFO D
+			            WHERE A.COMP_CD = B.COMP_CD
+			            AND A.COMP_CD = D.COMP_CD(+)
+					    AND B.ITEM_CD = C.ITEM_CD
+			            AND C.ITEM_CD = D.ITEM_CD(+)
+						AND A.COMP_NAME = #{compName}
+			    <if test="itemCd != null and itemCd != ''">
+			            AND B.ITEM_CD LIKE '%' || #{itemCd} || '%'
+			        </if>
+			        <if test="planYear != null and planYear != ''">
+			            AND TO_CHAR(D.PLAN_DT(+), 'yyyy') = #{planYear}
+			        </if>
+			        <if test="planMonth != null and planMonth != ''">
+			            AND TO_CHAR(D.PLAN_DT(+), 'mm') = #{planMonth}
+			        </if>
+			GROUP BY
+			    A.COMP_CD,
+			    A.COMP_NAME,
+			    B.ITEM_CD,
+			    C.ITEM_NAME
+			ORDER BY
+			    A.COMP_NAME,
+			    B.ITEM_CD
+    
+	    </select>
+</mapper>

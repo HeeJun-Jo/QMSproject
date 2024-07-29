@@ -1,0 +1,14 @@
+package com.qms.login.dao;
+
+
+import org.springframework.stereotype.Repository;
+
+import com.qms.table.vo.user.UserInfoVO;
+
+@Repository
+public interface LoginDao {
+
+	public UserInfoVO selectUserInfo(UserInfoVO vo) throws Exception;
+	
+	public UserInfoVO selectUserPwdInfo(UserInfoVO vo) throws Exception;
+}

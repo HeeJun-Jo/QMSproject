@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qms.receive.dao.ReceiveDao">
+	
+	
+	<resultMap type="com.qms.receive.vo.RcvVO" id="receiveMap">
+	    <result property="rcvNo" 	                column="RCV_NO" />
+	    <result property="invoiceNo" 	            column="INVOICE_NO" />
+		<result property="compCd"           	    column="COMP_CD" />
+		<result property="inDt"     	            column="IN_DT" />
+		<result property="inStatus"    	            column="IN_STATUS" />
+		<result property="shipper"  	     	    column="SHIPPER" />
+		<result property="consignee" 	            column="CONSIGNEE" />
+		<result property="notiParty"                column="NOTI_PARTY" />
+		<result property="portLoad"            	    column="PORT_LOAD" />
+		<result property="finalDest"          	    column="FINAL_DEST" />
+		<result property="carrier"               	column="CARRIER" />
+		<result property="remark"            	    column="REMARK" />
+		<result property="inPrice"          	    column="IN_PRICE" />
+		<result property="compName"               	column="COMP_NAME" />
+		<result property="inQty"            	    column="IN_QTY" />
+	    <result property="regDt"            	    column="REG_DT" />
+	  </resultMap>
+
+
+ <select id = "selectRcvInfo"  resultMap="receiveMap">
+      SELECT
+        RN,
+        IN_DT,
+        COMP_NAME,
+        INVOICE_NO,
+        IN_PRICE,
+        IN_QTY,
+        REG_DT
+        
+        FROM(
+        SELECT 
+        
+        ROWNUM AS RN,
+        A.IN_DT,
+        B.COMP_NAME,
+        A.INVOICE_NO,
+        C.IN_PRICE,
+        C.IN_QTY,
+        A.REG_DT
+                
+       FROM TB_RCV_INFO A
+       JOIN TB_PARTNER_INFO B ON A.COMP_CD = B.COMP_CD
+       JOIN TB_RCV_ITEM C ON A.RCV_NO = C.RCV_NO
+       <if test="inDtFrom!=null and inDtFrom!=''">
+		and to_char(in_dt,'yyyy-mm-dd') <![CDATA[ >=]]> #{inDtFrom}
+		</if>
+		<if test="inDtTo!=null and inDtTo!=''">
+		and to_char(in_dt,'yyyy-mm-dd') <![CDATA[ <=]]> #{inDtTo}
+		</if> 
+		<if test="invoiceNo!=null and invoiceNo!=''">
+		and invoice_No like '%'||#{invoiceNo}||'%'
+		</if>
+       )
+        WHERE RN<![CDATA[ > ]]>(#{currentPage}-1)*#{countPerPage} 
+		AND RN<![CDATA[ <= ]]>#{currentPage}*#{countPerPage}
+ 
+ </select>
+ 
+
+
+</mapper>

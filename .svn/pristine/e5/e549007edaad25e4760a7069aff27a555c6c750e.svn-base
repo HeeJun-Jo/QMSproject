@@ -1,0 +1,20 @@
+package com.qms.user.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.qms.user.dao.UserDao;
+import com.qms.user.vo.UserVO;
+
+@Service
+public class UserService {
+	@Autowired
+	private UserDao dao;
+	
+	public List<UserVO> selectUserSearch(UserVO vo) throws Exception{
+		return dao.selectUserSearch(vo);
+		}
+	
+}

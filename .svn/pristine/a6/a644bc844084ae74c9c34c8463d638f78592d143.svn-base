@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qms.product.dao.ProductDao">
+	<resultMap type="com.qms.product.vo.ProductVO" id="ProductMap">
+		<result property="itemCd"            	column="ITEM_CD" />
+		<result property="itemName"            	column="ITEM_NAME" />
+		<result property="compCd"            	column="COMP_CD" />
+		<result property="compName"            	column="COMP_NAME" />
+		<result property="planDt"            	column="PLAN_DT" />
+		<result property="productQty"           column="PRODUCT_QTY" />
+		<result property="insQty"            	column="INS_QTY" />
+		<result property="planYear"            	column="PLAN_YEAR" />
+		<result property="planMonth"            column="PLAN_MONTH" />
+		<result property="sitemCd"              column="SITEM_CD" />
+		<result property="sitemName"              column="SITEM_NAME" />
+		<result property="totalQty"              column="TOTAL_QTY" />
+		
+
+		
+		</resultMap>
+	<select id = "selectProductListExcel" resultType = "HashMap">
+		
+				SELECT
+		    ITEM_CD, 
+		    ITEM_NAME,
+		    SITEM_NAME,
+		    SITEM_CD,
+		    PLAN_DT,
+		    PRODUCT_QTY,
+		    INS_QTY,
+		    PRODUCT_QTY * INS_QTY AS TOTAL_QTY
+		FROM (
+		    SELECT DISTINCT
+		        ROWNUM RN,
+		        A.ITEM_CD, 
+		        A.ITEM_NAME,
+		        C.SITEM_CD,
+		        D.ITEM_NAME AS SITEM_NAME,
+		        B.PRODUCT_QTY,
+		        C.INS_QTY,
+		        B.PLAN_DT
+		    FROM TB_ITEM_INFO A
+		    JOIN TB_PRODUCT_INFO B ON A.ITEM_CD = B.ITEM_CD
+		    JOIN TB_BOM_DTL C ON A.ITEM_CD = C.ITEM_CD
+		    JOIN TB_ITEM_INFO D ON C.SITEM_CD = D.ITEM_CD
+
+			<if test="planYear!=null and planYear!=''">
+			and to_char(B.PLAN_DT,'yyyy') <![CDATA[ >=]]> #{planYear}
+			</if>
+			<if test="planMonth!=null and planMonth!=''">
+			and to_char(B.PLAN_DT,'mm') <![CDATA[ >=]]> #{planMonth}
+			</if>
+			<if test="compName!=null and compName!=''">
+				and COMP_NAME like '%'||#{compName}||'%'
+			</if>
+			)
+		
+	
+	</select>
+	
+	<select id = "selectProductList" resultMap = "ProductMap">
+				SELECT
+		    ITEM_CD, 
+		    ITEM_NAME,
+		    SITEM_NAME,
+		    SITEM_CD,
+		    PLAN_DT,
+		    PRODUCT_QTY,
+		    INS_QTY,
+		    PRODUCT_QTY * INS_QTY AS TOTAL_QTY
+		FROM (
+		    SELECT DISTINCT
+		        ROWNUM RN,
+		        A.ITEM_CD, 
+		        A.ITEM_NAME,
+		        C.SITEM_CD,
+		        D.ITEM_NAME AS SITEM_NAME,
+		        B.PRODUCT_QTY,
+		        C.INS_QTY,
+		        B.PLAN_DT
+		    FROM TB_ITEM_INFO A
+		    JOIN TB_PRODUCT_INFO B ON A.ITEM_CD = B.ITEM_CD
+		    JOIN TB_BOM_DTL C ON A.ITEM_CD = C.ITEM_CD
+		    JOIN TB_ITEM_INFO D ON C.SITEM_CD = D.ITEM_CD
+
+
+
+			<if test="planYear!=null and planYear!=''">
+			and to_char(B.PLAN_DT,'yyyy') <![CDATA[ >=]]> #{planYear}
+			</if>
+			<if test="planMonth!=null and planMonth!=''">
+			and to_char(B.PLAN_DT,'mm') <![CDATA[ >=]]> #{planMonth}
+			</if>
+			<if test="compName!=null and compName!=''">
+				and COMP_NAME like '%'||#{compName}||'%'
+			</if>
+			)
+			WHERE RN<![CDATA[ > ]]>(#{currentPage}-1)*#{countPerPage} 
+			AND RN<![CDATA[ <= ]]>#{currentPage}*#{countPerPage}
+				
+			
+	</select>
+	<select id="selectProductCount" resultType="integer">
+
+		SELECT COUNT(*)
+		FROM 
+		    TB_ITEM_INFO A
+		INNER JOIN 
+		    TB_PRODUCT_INFO B ON A.ITEM_CD = B.ITEM_CD
+		INNER JOIN 
+		    TB_BOM_DTL C ON C.ITEM_CD = B.ITEM_CD
+	    INNER JOIN 
+		    TB_ITEM_INFO D ON C.SITEM_CD = D.ITEM_CD
+		    
+		    </select>
+		    
+			
+	</mapper>
+

@@ -1,0 +1,15 @@
+spring.application.name=qms_t1
+
+server.port=8080
+
+#Oracle 정보
+spring.datasource.hikari.driver-class-name=oracle.jdbc.OracleDriver
+spring.datasource.hikari.jdbc-url=jdbc:oracle:thin:@192.168.0.55:1521:orcl
+spring.datasource.hikari.username=system
+spring.datasource.hikari.password=11111111
+
+spring.mvc.view.prefix=/WEB-INF/jsp/
+spring.mvc.view.suffix=.jsp
+
+spring.messages.basename=messages/message
+spring.messages.encoding=UTF-8

@@ -1,0 +1,276 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>기안서 작성</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="/assets/img/favicon.png" rel="icon">
+  <link href="/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.gstatic.com" rel="preconnect">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+  <link href="/assets/vendor/quill/quill.snow.css" rel="stylesheet">
+  <link href="/assets/vendor/quill/quill.bubble.css" rel="stylesheet">
+  <link href="/assets/vendor/remixicon/remixicon.css" rel="stylesheet">
+  <link href="/assets/vendor/simple-datatables/style.css" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="/assets/css/style.css" rel="stylesheet">
+
+  <!-- Custom CSS File -->
+  <style>
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: #f0f2f5;
+      font-size: 16px;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .pagetitle {
+      margin-bottom: 20px;
+      font-size: 24px;
+      font-weight: 700;
+      color: #333;
+    }
+
+    .breadcrumb {
+      background-color: transparent;
+      padding: 0;
+      margin-bottom: 20px;
+    }
+
+    .breadcrumb-item + .breadcrumb-item::before {
+      content: ">";
+      color: #6c757d;
+    }
+
+    .section {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    #full {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    #screen_left,
+    #screen_right {
+      flex: 1;
+      min-width: 500px;
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    table {
+      width: 100%;
+      margin-bottom: 20px;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #dee2e6;
+    }
+
+    th {
+      background-color: #f1f1f1;
+    }
+
+    .input-box {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+    }
+
+    select, textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    .btn {
+      margin-right: 10px;
+    }
+
+    .btn-info {
+      background-color: #17a2b8;
+      border-color: #17a2b8;
+      color: white;
+    }
+
+    .btn-info:hover {
+      background-color: #138496;
+      border-color: #117a8b;
+    }
+
+    .table-section {
+      margin-bottom: 20px;
+    }
+
+    .table-section table {
+      margin-bottom: 0;
+    }
+  </style>
+</head>
+
+<body>
+
+  <%@ include file="../layout/menu.jsp" %>
+
+  <main id="main" class="main container">
+
+    <div class="pagetitle">
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="index.html">홈</a></li>
+          <li class="breadcrumb-item">전자결재</li>
+          <li class="breadcrumb-item active">기안서작성</li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section">
+      <div id="full">
+        <div id="screen_left">
+          <div id="screenleft-1" class="table-section">
+           <form id="dataform">
+            <table>
+              <tr>
+                <th scope="col">문서번호</th>
+                <td><input type="text" class="input-box"></td>
+                <th scope="col">등록일</th>
+                <td><input type="text" class="input-box" ></td>
+              </tr>
+              <tr>
+                <th scope="col">등록자</th>
+                <td><input type="text" class="input-box"></td>
+                
+                <th scope="col">부서</th>
+                <td><input type="text" class="input-box"></td>
+               
+              </tr>
+              <tr>
+                <th scope="col">문서유형</th>
+                <td>
+                  <select class="input-box">
+                    <option value="지출결의서">지출결의서</option>
+                     <option value="기타">기타</option>
+                  </select>
+                </td>
+                <th scope="col">보존기한</th>
+                <td>
+                  <select class="input-box">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <th scope="col">문서종류</th>
+                <td>
+                  <select class="input-box">
+                    <option value="일반문서">일반문서</option>
+                    <option value="비밀문서">비밀문서</option>
+                    <option value="기타">기타</option>
+                  </select>
+                </td>
+                <th scope="col">문서상태</th>
+                <td>
+                  <select class="input-box">
+                    <option value="작성중">작성중</option>
+                    <option value="작성완료">작성완료</option>
+                    <option value="기타">기타</option>
+                  </select>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div id="screenleft-2" class="table-section">
+            <table>
+              <tr>
+                <th scope="col">결재라인</th>
+                <td><button type="button" class="btn btn-info">+</button></td>
+              </tr>
+              <tr>
+                <th scope="col">NO</th>
+                <th scope="col">성명</th>
+                <th scope="col">직위</th>
+                <th scope="col">부서</th>
+                <th scope="col">결재유형</th>
+                <th scope="col">상태</th>
+              </tr>
+            </table>
+          </div>
+          <div id="screenleft-3" class="table-section">
+            <table>
+              <tr>
+                <th scope="col">첨부파일</th>
+                <td><button type="button" class="btn btn-info">+</button></td>
+              </tr>
+              <tr>
+                <th scope="col">NO</th>
+                <th scope="col">파일명</th>
+                <th scope="col">파일크기</th>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <div id="screen_right">
+          <table class="table-section">
+            <tr>
+              <th scope="col">제목</th>
+              <td><input type="text" class="input-box"></td>
+            </tr>
+            <tr>
+              <th scope="col">내용</th>
+              <td><textarea id="replyContent" name="replyContent" rows="18" class="input-box"></textarea></td>
+            </tr>
+          </table>
+          <div class="d-flex justify-content-end">
+            <button type="button" class="btn btn-info" onclick = "saveData()">상신</button>
+            <button type="button" class="btn btn-info">임시저장</button>
+          </div>
+        </div>
+      </div>
+      </form>
+      
+  
+      
+    </section>
+
+  </main>
+
+

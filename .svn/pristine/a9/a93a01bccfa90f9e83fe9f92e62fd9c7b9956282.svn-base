@@ -1,0 +1,8 @@
+package com.qms.table.vo.approve;
+
+import lombok.Data;
+
+@Data
+public class ApproveInfoVO {
+
+}

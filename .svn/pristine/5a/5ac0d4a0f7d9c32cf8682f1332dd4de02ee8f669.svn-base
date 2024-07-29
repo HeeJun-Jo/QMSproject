@@ -1,0 +1,56 @@
+package com.qms.bom.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.qms.bom.service.BomService;
+import com.qms.bom.vo.BomInfoVO;
+import com.qms.bom.vo.BomPageVO;
+import com.qms.item.vo.ItemVO;
+
+@Controller
+public class BomController {
+	
+	@Autowired
+	BomService service;
+
+	@RequestMapping("/bom/bomList")
+	public String bomList() throws Exception{
+		return "/bom/bom01";
+	}
+	
+	// BOM 조회
+	@RequestMapping("/bom/selectBomList")
+	@ResponseBody
+	public BomPageVO selectBomList(@ModelAttribute("ItemVO")ItemVO vo)throws Exception{
+		int totalPage = 0;
+		
+		BomPageVO bompagevo = new BomPageVO();
+		totalPage = service.selectTotalBomCount(vo);
+		List<ItemVO> list = service.selectBomList(vo);
+		
+		bompagevo.setBomlist(list);
+		bompagevo.setTotal(totalPage); // 총 데이터 수
+		bompagevo.setStartPage(vo.getStartPage());
+		bompagevo.setCurrentPage(vo.getCurrentPage()); // 현재 페이지
+		
+		return bompagevo;
+	}
+	
+	// BOM 상세조회
+	@RequestMapping("/bom/getBomDtl")
+	@ResponseBody
+	public BomInfoVO selectBomDtl(@ModelAttribute("BomInfoVO")BomInfoVO vo)throws Exception{
+		
+		vo = service.selectBomDtl(vo);
+		
+		vo.setBomDtlList(service.selectBomDtlList(vo));
+		
+		return vo;
+	}
+}

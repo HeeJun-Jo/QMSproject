@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qms.approve.dao.NoticeDao2">
+	
+	
+	<resultMap type="com.qms.approve.vo.ScheduleVO" id="scheduleMap">
+	    <result property="scStDt" 	                column="SC_ST_DT" />
+		<result property="scEnDt"           	    column="SC_EN_DT" />
+		<result property="scSeq"     	            column="SC_SEQ" />
+		<result property="content"    	            column="CONTENT" />
+		<result property="scStatus"  	     	    column="SC_STATUS" />
+		<result property="scStTm" 	                column="SC_ST_TM" />
+		<result property="scStTmHr" 	            column="SC_ST_TM_HR" />
+	    <result property="scStTmMin" 	            column="SC_ST_TM_MIN" />
+		<result property="scEnTm"                   column="SC_EN_TM" />
+		<result property="scEnTmHr"                 column="SC_EN_TM_HR" />
+		<result property="scEnTmMin"                column="SC_EN_TM_MIN" />
+		<result property="comName"                  column="COM_NAME" />
+		<result property="regDt"                    column="REG_DT" />
+		<result property="userId"                   column="USER_ID" />
+	  </resultMap>
+
+	<insert id="insertScInfo" >
+	INSERT INTO TB_SCHEDULE_INFO
+	              ( USER_ID, SC_SEQ, SC_ST_DT, SC_EN_DT, CONTENT, SC_STATUS, SC_ST_TM, SC_EN_TM, REG_DT )
+	       VALUES(
+	       		   #{userId},
+	       		   (SELECT NVL(MAX(SC_SEQ), 0) + 1 FROM TB_SCHEDULE_INFO),
+	         	   #{scStDt},
+	               #{scEnDt},
+	               #{content},
+	               #{scStatus},
+	               #{scStTm},
+	               #{scEnTm},
+	               SYSDATE
+	              )
+		
+	</insert>
+	
+	<select id="selectScList" resultMap="scheduleMap">
+	SELECT 
+	      A.USER_ID,
+	      A.SC_SEQ,
+	      TO_CHAR(A.SC_ST_DT,'YYYY-MM-DD') SC_ST_DT,
+	      A.SC_ST_TM,
+	      TO_CHAR(A.SC_EN_DT,'YYYY-MM-DD') SC_EN_DT,
+	      A.SC_EN_TM,
+	      A.CONTENT,
+	      A.SC_STATUS,
+          B.COM_NAME,
+          A.REG_DT
+	  FROM TB_SCHEDULE_INFO A, TB_COM_CODE B   
+	        WHERE A.SC_STATUS = B.COM_CD
+	    	AND B.COM_GRP_CD = 'AP07'
+	
+	
+	</select>
+	
+	<delete id="deleteSchedule">
+		DELETE FROM TB_SCHEDULE_INFO
+		WHERE USER_ID = #{userId} 
+	    AND SC_SEQ = #{scSeq} 
+	
+		
+	</delete>
+	
+	
+</mapper>

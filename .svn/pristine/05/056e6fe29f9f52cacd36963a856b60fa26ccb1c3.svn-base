@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qms.item.dao.ItemDao">
+					 
+	<resultMap type="com.qms.table.vo.item.ItemInfoVO" id="itemMap">
+		<result property="itemCd" 		column="ITEM_CD"/>
+		<result property="itemName" 	column="ITEM_NAME"/>
+		<result property="itemType" 	column="ITEM_TYPE"/>
+		<result property="unitType" 	column="UNIT_TYPE"/>
+		<result property="hscode" 		column="HSCODE"/>
+		<result property="boxType" 		column="BOX_TYPE"/>
+		<result property="boxQty" 		column="BOX_QTY"/>
+		<result property="weight" 		column="WEIGHT"/>
+		<result property="plantLine"	column="PLANT_LINE"/>
+		<result property="unitPrice" 	column="UNIT_PRICE"/>
+		<result property="location" 	column="LOCATION"/>
+		<result property="subconYn" 	column="SUBCON_YN"/>
+		<result property="regDt" 		column="REG_DT"/>
+		<result property="regUserId" 	column="REG_USER_ID"/>
+		<result property="updDt" 		column="UPD_DT"/>
+		<result property="updUserId" 	column="UPD_USER_ID"/>
+	</resultMap>
+	<select id="selectTotalItemCount" resultType="integer">
+		SELECT COUNT(*)
+		FROM TB_ITEM_INFO
+		WHERE 1=1
+		<if test="itemCd != null and itemCd != ''">
+			and ITEM_CD like '%'||#{itemCd}||'%'
+		</if>
+		<if test="itemName != null and itemName != ''">
+			and ITEM_NAME like '%'||#{itemName}||'%'
+		</if>
+		<if test="itemType != null and itemType != ''">
+			and ITEM_TYPE like '%'||#{itemType}||'%'
+		</if>
+	</select>
+	<select id="selectItemList" resultMap="itemMap">
+		SELECT A.ITEM_CD, A.ITEM_NAME, A.REG_DT, A.ITEM_TYPE, A.UNIT_TYPE, A.BOX_TYPE, A.PLANT_LINE, A.LOCATION
+		FROM (
+		SELECT ROWNUM RN, ITEM_CD, ITEM_NAME, TO_CHAR(REG_DT, 'YYYY.MM.DD') AS REG_DT,
+		(SELECT COM_NAME FROM TB_COM_CODE WHERE COM_GRP_CD = 'IT01' AND ITEM_TYPE = COM_CD) ITEM_TYPE,
+		(SELECT COM_NAME FROM TB_COM_CODE WHERE COM_GRP_CD = 'IT02' AND UNIT_TYPE = COM_CD) UNIT_TYPE,
+		(SELECT COM_NAME FROM TB_COM_CODE WHERE COM_GRP_CD = 'IT03' AND BOX_TYPE = COM_CD) BOX_TYPE,
+		(SELECT COM_NAME FROM TB_COM_CODE WHERE COM_GRP_CD = 'IT04' AND PLANT_LINE = COM_CD) PLANT_LINE,
+		(SELECT COM_NAME FROM TB_COM_CODE WHERE COM_GRP_CD = 'IT05' AND LOCATION = COM_CD) LOCATION
+		FROM TB_ITEM_INFO
+		WHERE 1=1
+		<if test="itemCd != null and itemCd != ''">
+			and ITEM_CD like '%'||#{itemCd}||'%'
+		</if>
+		<if test="itemName != null and itemName != ''">
+			and ITEM_NAME like '%'||#{itemName}||'%'
+		</if>
+		<if test="itemType != null and itemType != ''">
+			and ITEM_TYPE like '%'||#{itemType}||'%'
+		</if>
+		)A
+		WHERE RN<![CDATA[ > ]]>(#{currentPage}-1)*#{countPerPage} 
+		AND RN<![CDATA[ <= ]]>#{currentPage}*#{countPerPage}
+	</select>
+	<select id="selectItemDtl" resultMap="itemMap">
+		SELECT ITEM_CD, ITEM_NAME, ITEM_TYPE, UNIT_TYPE, HSCODE, BOX_TYPE, WEIGHT, BOX_QTY, PLANT_LINE, UNIT_PRICE, LOCATION, SUBCON_YN
+		FROM TB_ITEM_INFO
+		WHERE ITEM_CD = #{itemCd}
+	</select>
+	<insert id="insertItem">
+		INSERT INTO TB_ITEM_INFO(ITEM_CD, ITEM_NAME, ITEM_TYPE, UNIT_TYPE, HSCODE, BOX_TYPE, WEIGHT, BOX_QTY, PLANT_LINE, UNIT_PRICE, LOCATION, SUBCON_YN)
+		VALUES(#{itemCd}, #{itemName}, #{itemType}, #{unitType}, #{hscode}, #{boxType}, #{weight}, #{boxQty}, #{plantLine}, #{unitPrice}, #{location}, #{subconYn})
+	</insert>
+	<update id="updateItem">
+		UPDATE TB_ITEM_INFO
+		SET ITEM_NAME = #{itemName}, ITEM_TYPE = #{itemType}, UNIT_TYPE = #{unitType}, HSCODE = #{hscode}, BOX_TYPE = #{boxType}, WEIGHT = #{weight}, BOX_QTY = #{boxQty},
+		 PLANT_LINE = #{plantLine}, UNIT_PRICE = #{unitPrice}, LOCATION = #{location}, SUBCON_YN = #{subconYn}
+		WHERE ITEM_CD = #{itemCd}
+	</update>
+</mapper>

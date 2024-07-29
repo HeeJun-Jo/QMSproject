@@ -1,0 +1,12 @@
+package com.qms.notice.dao;
+
+import org.springframework.stereotype.Repository;
+
+import com.qms.table.vo.approve.NoticeInfoVO;
+
+@Repository
+public interface NoticeDao {
+
+	int insertNoticeInfo(NoticeInfoVO vo)throws Exception;
+	
+}

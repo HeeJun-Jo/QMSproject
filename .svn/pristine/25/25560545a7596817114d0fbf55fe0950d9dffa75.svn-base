@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qms.approve.dao.BoardDao">
+	
+	<resultMap type="com.qms.approve.vo.NoticeVO" id="NoticeMap">
+		<result property="userId" column="user_Id"/>
+		<result property="userName" column="user_Name"/>
+		<result property="noticeSeq" column="notice_Seq"/>
+		<result property="noticeType" column="notice_Type"/>
+		<result property="title" column="title"/>
+		<result property="content" column="content"/>
+		<result property="filePath" column="file_Path"/>
+		<result property="fileName" column="file_Name"/>
+		<result property="regDt" column="reg_Dt"/>
+		<result property="deptCd" column="dept_Cd"/>
+		<result property="deptName" column="dept_Name"/>
+		<result property="noticeTypeName" column="NOTICE_TYPE_NAME"/>
+		
+</resultMap>
+	<select id="selectnoticeInfo" resultMap="NoticeMap">
+
+	SELECT
+		RN, 
+		USER_ID,
+		USER_NAME,
+		DEPT_CD,
+		DEPT_NAME,
+		NOTICE_SEQ,
+		NOTICE_TYPE,
+		NOTICE_TYPE_NAME,
+		TITLE,
+		CONTENT,
+		FILE_PATH,
+		FILE_NAME,
+		REG_DT
+		
+		FROM (
+		
+		SELECT
+		ROWNUM AS RN,
+		A.USER_ID,
+		A.USER_NAME,
+		B.DEPT_CD,
+		B.DEPT_NAME,
+		C.NOTICE_SEQ,
+		C.NOTICE_TYPE,
+		(SELECT COM_NAME FROM TB_COM_CODE WHERE COM_GRP_CD = 'NT01' AND COM_CD = C.NOTICE_TYPE) 
+		AS NOTICE_TYPE_NAME,
+		C.TITLE,
+		C.CONTENT,
+		C.FILE_PATH,
+		C.FILE_NAME,
+		C.REG_DT
+		
+		FROM TB_USER_INFO A , TB_DEPT_INFO B , TB_NOTICE_INFO C
+		WHERE A.DEPT_CD = B.DEPT_CD
+		AND A.USER_ID = C.USER_ID   
+		 <if test="title!=null and title!=''">
+		and TITLE like '%'||#{title}||'%'
+		</if>
+		 <if test="noticeType!=null and noticeType!=''">
+		and NOTICE_TYPE = #{noticeType}
+		</if>
+		)
+		WHERE RN<![CDATA[ > ]]>(#{currentPage}-1)*#{countPerPage} 
+		 AND RN<![CDATA[ <= ]]>#{currentPage}*#{countPerPage}
+	</select>
+
+	<select id="selectnoticeDetail" resultMap="NoticeMap">
+	SELECT
+		TITLE ,
+		CONTENT,
+		NOTICE_TYPE,
+		FILE_NAME,
+		FILE_PATH
+		FROM TB_NOTICE_INFO
+		WHERE NOTICE_SEQ = #{noticeSeq}
+	</select>
+		
+	<insert id="insertBoardInfo">
+		INSERT INTO TB_NOTICE_INFO(
+	   NOTICE_SEQ, USER_ID, NOTICE_TYPE, TITLE, CONTENT,
+	   <if test="filePath!=null and filePath!=''"> 
+	   FILE_PATH, FILE_NAME,
+	   </if> 
+	   DEL_YN, REG_DT, REG_USER_ID
+	    )
+	 VALUES(
+	   (SELECT NVL(MAX(NOTICE_SEQ),0)+1 FROM TB_NOTICE_INFO ), 
+	   #{userId},
+	   #{noticeType},
+	   #{title},
+	   #{content},
+	   <if test="filePath!=null and filePath!=''">
+	   #{filePath},
+	   #{fileName},
+	   </if>
+	   'N',
+	   SYSDATE,
+	   #{userId}
+	 )
+	</insert>
+	
+	<update id="updateBoardInfo">
+		UPDATE TB_NOTICE_INFO
+		SET
+		NOTICE_TYPE = #{noticeType},
+		TITLE = #{title},
+		CONTENT = #{content},
+		<if test="fileName!=null and fileName!=''">
+		FILE_NAME = #{fileName},
+		</if>
+		UPD_DT = SYSDATE,
+		UPD_USER_ID = #{userId}
+		WHERE NOTICE_SEQ = #{noticeSeq}
+	</update>
+	
+	
+	<delete id = "DeleteBoardInfo">
+		DELETE TB_NOTICE_INFO
+		WHERE NOTICE_SEQ = #{noticeSeq}	
+	</delete>
+	
+	<select id="selectNoticeCount" resultType="integer">
+
+		SELECT COUNT(*)
+		FROM 
+		    TB_NOTICE_INFO A
+		INNER JOIN 
+		    TB_USER_INFO C ON A.USER_ID = C.USER_ID
+		INNER JOIN 
+		    TB_DEPT_INFO B ON C.DEPT_CD = B.DEPT_CD
+		
+  		
+	</select>
+</mapper>
+

@@ -1,0 +1,12 @@
+package com.qms.user.dao;
+
+import java.util.List;
+
+import org.springframework.stereotype.Repository;
+
+import com.qms.user.vo.UserVO;
+
+@Repository
+public interface UserDao {
+	public List<UserVO> selectUserSearch(UserVO vo) throws Exception;
+}

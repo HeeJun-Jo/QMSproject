@@ -1,0 +1,32 @@
+package com.qms.receive.vo;
+
+import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.qms.table.vo.approve.NoticeInfoVO;
+import com.qms.table.vo.receive.RcvInfoVO;
+
+import lombok.Data;
+
+@Data
+public class RcvVO extends RcvInfoVO {
+	
+	private String compName;
+	private String inPrice;
+	private String inQty;
+	private String regDt;
+	private String inDtTo;
+	private String inDtFrom;
+	
+	private List<RcvInfoVO> receivelist;
+
+	
+		// TODO 자동 생성된 메소드 스텁
+		
+	}
+	
+	
+
+

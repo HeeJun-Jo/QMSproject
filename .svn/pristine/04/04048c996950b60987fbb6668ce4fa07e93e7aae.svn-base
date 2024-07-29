@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qms.plan.dao.PlanDao">
+					 
+	<resultMap type="com.qms.plan.vo.PlanInfoVO" id="planMap">
+		<result property="compCd" 		column="COMP_CD"/>
+		<result property="planDt" 		column="PLAN_DT"/>
+		<result property="itemCd" 		column="ITEM_CD"/>
+		<result property="planQty" 		column="PLAN_QTY"/>
+		<result property="orderQty" 	column="ORDER_QTY"/>
+		<result property="regDt" 		column="REG_DT"/>
+		<result property="regUserId" 	column="REG_USER_ID"/>
+		<result property="updDt" 		column="UPD_DT"/>
+		<result property="updUserId" 	column="UPD_USER_ID"/>
+		<result property="compName" 	column="COMP_NAME"/>
+		<result property="itemName" 	column="ITEM_NAME"/>
+		<result property="insQty" 		column="INS_QTY"/>
+		<result property="boxQty" 		column="BOX_QTY"/>
+		<result property="sitemCd" 		column="SITEM_CD"/>
+	</resultMap>
+		<resultMap type="com.qms.receive.vo.PartnerVO" id="partnerMap">
+		<result property="compCd" 		column="COMP_CD"/>
+		<result property="compName" 	column="COMP_NAME"/>
+		<result property="compType" 	column="COMP_TYPE"/>
+		<result property="bizNo" 		column="BIZ_NO"/>
+		<result property="tradeYn" 		column="TRADE_YN"/>
+		<result property="compCeo" 		column="COMP_CEO"/>
+		<result property="phone" 		column="PHONE"/>
+		<result property="email" 		column="EMAIL"/>
+		<result property="addr" 		column="ADDR"/>
+		<result property="mgrName" 		column="MGR_NAME"/>
+		<result property="mgrPosition" 	column="MGR_POSITION"/>
+		<result property="mgrPhone" 	column="MGR_PHONE"/>
+		<result property="delYn" 		column="DEL_YN"/>
+		<result property="regDt" 		column="REG_DT"/>
+		<result property="regUserId" 	column="REG_USER_ID"/>
+		<result property="updDt" 		column="UPD_DT"/>
+		<result property="updUserId" 	column="UPD_USER_ID"/>
+		<result property="itemCd" 		column="ITEM_CD"/>
+		<result property="itemName" 		column="ITEM_NAME"/>
+	</resultMap>
+	<select id="selectPartnerInfo" resultMap="partnerMap">
+		SELECT A.ITEM_CD, B.ITEM_NAME, C.COMP_NAME
+		FROM TB_PARTNER_ITEM A, TB_ITEM_INFO B, TB_PARTNER_INFO C
+		WHERE A.ITEM_CD = B.ITEM_CD
+		AND A.COMP_CD = C.COMP_CD
+		<if test="compCd != null and compCd != ''">
+			AND A.COMP_CD = #{compCd}
+		</if>
+		ORDER BY A.ITEM_CD
+	</select>
+	<select id="selectPlanList" resultMap="planMap">
+		SELECT A.ITEM_CD, C.ITEM_NAME, B.ORDER_QTY, B.PLAN_QTY, (TO_CHAR(B.PLAN_DT,'DD'))PLAN_DT
+		FROM TB_PARTNER_ITEM A, (SELECT * FROM TB_PLAN_INFO WHERE PLAN_DT LIKE '%'||#{planDt}||'%')B, TB_ITEM_INFO C
+		WHERE A.COMP_CD = B.COMP_CD(+)
+		AND A.ITEM_CD = B.ITEM_CD(+)
+		AND A.ITEM_CD = C.ITEM_CD
+		<if test="itemCd != null and itemCd != ''">
+			and A.ITEM_CD like '%'||#{itemCd}||'%'
+		</if>
+		<if test="compCd != null and compCd != ''">
+			AND A.COMP_CD = #{compCd}
+		</if>
+		ORDER BY B.PLAN_DT
+	</select>
+	<delete id="deletePlan">
+		DELETE TB_PLAN_INFO
+		WHERE COMP_CD = #{compCd}
+		AND PLAN_DT LIKE '%'||#{planDt}||'%'
+	</delete>
+	<update id="insertPlan">
+    	<foreach collection="qtyList" item="item" open="INSERT ALL" close="SELECT * FROM DUAL" separator=" ">
+	        INTO TB_PLAN_INFO (
+	            COMP_CD,
+	            PLAN_DT,
+	            ITEM_CD,
+            	PLAN_QTY,
+            	ORDER_QTY,
+            	REG_DT,
+            	REG_USER_ID
+            )
+            VALUES (
+                #{compCd}, TO_DATE(#{item.planDt}, 'YY/MM/DD'), #{item.itemCd}, #{item.planQty}, #{item.orderQty}, SYSDATE, #{regUserId}
+           	)
+    	</foreach>
+	</update>
+		<select id="selectPlanQtyList" resultMap="planMap">
+		SELECT
+		    D.ITEM_CD,
+		    C.ITEM_NAME,
+		    SUM(D.PLAN_QTY) AS PLAN_QTY
+		FROM
+		    TB_PARTNER_INFO A,
+		    TB_ITEM_INFO C,
+		    TB_PLAN_INFO D
+		WHERE A.COMP_CD = D.COMP_CD
+		    AND C.ITEM_CD = D.ITEM_CD
+		    <if test="compName != null and compName != ''">
+			     AND A.COMP_NAME LIKE '%' || #{compName} || '%'
+			</if>
+			<if test="itemCd != null and itemCd != ''">
+			     AND D.ITEM_CD LIKE '%' || #{itemCd} || '%'
+			</if>
+			<if test="planDtFrom != null and planDtFrom != ''">
+			     AND TO_CHAR(D.PLAN_DT, 'yyyy-mm-dd') <![CDATA[ >= ]]> #{planDtFrom}
+			</if>
+			<if test="planDtTo != null and planDtTo != ''">
+			     AND TO_CHAR(D.PLAN_DT, 'yyyy-mm-dd') <![CDATA[ <= ]]> #{planDtTo}
+			</if>
+		GROUP BY		   
+		    D.ITEM_CD,
+		    C.ITEM_NAME		   
+		ORDER BY
+		    D.ITEM_CD
+	</select>
+	
+	<select id="selectPlanQtyBomList" resultMap="planMap">
+		SELECT
+		    A.SITEM_CD,
+		    C.ITEM_NAME,
+		    SUM(A.INS_QTY*B.PLAN_QTY) INS_QTY,
+		    SUM(C.BOX_QTY) BOX_QTY
+		FROM
+		    TB_BOM_DTL A,
+		    TB_PLAN_INFO B,
+		    TB_ITEM_INFO C,
+		    TB_PARTNER_INFO D
+		WHERE
+		    A.ITEM_CD = B.ITEM_CD
+		    AND B.COMP_CD = D.COMP_CD
+		    AND A.SITEM_CD = C.ITEM_CD
+            <if test="compName != null and compName != ''">
+			     AND D.COMP_NAME LIKE '%' || #{compName} || '%'
+			</if>
+			<if test="itemCd != null and itemCd != ''">
+			     AND A.ITEM_CD LIKE '%' || #{itemCd} || '%'
+			</if>
+			<if test="planDtFrom != null and planDtFrom != ''">
+			     AND TO_CHAR(B.PLAN_DT, 'yyyy-mm-dd') <![CDATA[ >= ]]> #{planDtFrom}
+			</if>
+			<if test="planDtTo != null and planDtTo != ''">
+			     AND TO_CHAR(B.PLAN_DT, 'yyyy-mm-dd') <![CDATA[ <= ]]> #{planDtTo}     
+			</if>
+			<if test="qtyList!=null">
+				AND A.ITEM_CD IN (
+					<foreach collection="qtyList" item='item' separator=",">
+					#{item.itemCd}
+					</foreach>
+				) 
+			</if>
+			
+		GROUP BY            
+            A.SITEM_CD,
+            C.ITEM_NAME		   
+		ORDER BY
+		    A.SITEM_CD
+	</select>
+	
+	<select id="selectPlanQtyListExcel" resultType="HashMap">
+				SELECT
+				    D.ITEM_CD,
+				    C.ITEM_NAME,
+				    SUM(D.PLAN_QTY) AS PLAN_QTY
+				FROM
+				    TB_PARTNER_INFO A,
+				    TB_ITEM_INFO C,
+				    TB_PLAN_INFO D
+				WHERE A.COMP_CD = D.COMP_CD
+				    AND C.ITEM_CD = D.ITEM_CD
+				    <if test="compName != null and compName != ''">
+					     AND A.COMP_NAME LIKE '%' || #{compName} || '%'
+					</if>
+					<if test="itemCd != null and itemCd != ''">
+					     AND D.ITEM_CD LIKE '%' || #{itemCd} || '%'
+					</if>
+					<if test="planDtFrom != null and planDtFrom != ''">
+					     AND TO_CHAR(D.PLAN_DT, 'yyyy-mm-dd') <![CDATA[ >= ]]> #{planDtFrom}
+					</if>
+					<if test="planDtTo != null and planDtTo != ''">
+					     AND TO_CHAR(D.PLAN_DT, 'yyyy-mm-dd') <![CDATA[ <= ]]> #{planDtTo}
+					</if>
+				GROUP BY		   
+				    D.ITEM_CD,
+				    C.ITEM_NAME		   
+				ORDER BY
+				    D.ITEM_CD
+	</select>
+	
+	<select id="selectPlanQtyBomListExcel" resultType="HashMap">
+		SELECT
+		    A.SITEM_CD,
+		    C.ITEM_NAME,
+		    SUM(A.INS_QTY*B.PLAN_QTY) INS_QTY,
+		    SUM(C.BOX_QTY) BOX_QTY
+		FROM
+		    TB_BOM_DTL A,
+		    TB_PLAN_INFO B,
+		    TB_ITEM_INFO C,
+		    TB_PARTNER_INFO D
+		WHERE
+		    A.ITEM_CD = B.ITEM_CD
+		    AND B.COMP_CD = D.COMP_CD
+		    AND A.SITEM_CD = C.ITEM_CD
+            <if test="compName != null and compName != ''">
+			     AND D.COMP_NAME LIKE '%' || #{compName} || '%'
+			</if>
+			<if test="itemCd != null and itemCd != ''">
+			     AND A.ITEM_CD LIKE '%' || #{itemCd} || '%'
+			</if>
+			<if test="planDtFrom != null and planDtFrom != ''">
+			     AND TO_CHAR(B.PLAN_DT, 'yyyy-mm-dd') <![CDATA[ >= ]]> #{planDtFrom}
+			</if>
+			<if test="planDtTo != null and planDtTo != ''">
+			     AND TO_CHAR(B.PLAN_DT, 'yyyy-mm-dd') <![CDATA[ <= ]]> #{planDtTo}     
+			</if>
+			<if test="qtyList!=null">
+				AND A.ITEM_CD IN (
+					<foreach collection="qtyList" item='item' separator=",">
+					#{item.itemCd}
+					</foreach>
+				) 
+			</if>
+			
+		GROUP BY            
+            A.SITEM_CD,
+            C.ITEM_NAME		   
+		ORDER BY
+		    A.SITEM_CD
+		</select>
+	<resultMap type="com.qms.plan.vo.ProductVO" id="productMap">
+		<result property="compCd" 		column="COMP_CD"/>
+		<result property="planDt" 		column="PLAN_DT"/>
+		<result property="itemCd" 		column="ITEM_CD"/>
+		<result property="userId" 		column="USER_ID"/>
+		<result property="productQty" 	column="PRODUCT_QTY"/>
+		<result property="regDt" 		column="REG_DT"/>
+		<result property="regUserId" 	column="REG_USER_ID"/>
+		<result property="updDt" 		column="UPD_DT"/>
+		<result property="updUserId" 	column="UPD_USER_ID"/>
+		<result property="compName" 	column="COMP_NAME"/>
+		<result property="itemName" 	column="ITEM_NAME"/>
+	</resultMap>
+	<select id="selectProductInfo" resultMap="productMap">
+		SELECT
+		    B.COMP_CD,
+		    C.COMP_NAME,
+		    D.ITEM_CD,
+		    D.ITEM_NAME,
+		    B.PRODUCT_QTY,
+		    TO_CHAR(B.PLAN_DT, 'DD') AS PLAN_DT
+		FROM
+		    TB_PARTNER_ITEM A
+		    LEFT JOIN TB_PRODUCT_INFO B ON
+		    A.ITEM_CD = B.ITEM_CD AND
+		    A.COMP_CD = B.COMP_CD
+		    LEFT JOIN TB_PARTNER_INFO C ON
+		    A.COMP_CD = C.COMP_CD
+		    LEFT JOIN TB_ITEM_INFO D ON
+		    A.ITEM_CD = D.ITEM_CD
+		WHERE 
+		    TO_CHAR(B.PLAN_DT, 'YY/MM') = #{planDt}
+	</select>
+</mapper>

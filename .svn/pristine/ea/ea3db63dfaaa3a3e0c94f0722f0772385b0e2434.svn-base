@@ -1,0 +1,31 @@
+package com.qms.approve.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.qms.approve.service.ApproveService;
+
+
+@Controller
+public class ApproveController {
+
+	@Autowired
+	ApproveService service;
+	
+	/*
+	 *  기안서 작성
+     *  작성자 : 이성호
+     *  작성일 : 24.05.20
+	*/
+	@RequestMapping("/approve/write")
+	public String approveWrite() throws Exception{
+		int c = service.selectApproveCount();
+		System.out.println(c);
+		
+		return "approve/aprv01";
+	}
+	
+	
+	
+}

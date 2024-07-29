@@ -1,0 +1,38 @@
+package com.qms.notice.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.qms.approve.service.ApproveService;
+import com.qms.notice.service.NoticeService;
+import com.qms.table.vo.approve.NoticeInfoVO;
+
+
+
+@Controller
+public class NoticeController {
+
+	@Autowired
+	NoticeService service;
+	
+
+	@RequestMapping("/board/list")
+	public String notice() throws Exception{
+		
+		return "board/notice01";
+	}
+	
+	@RequestMapping("/goods/saveData")
+    @ResponseBody
+    public int insertNotice(@ModelAttribute("NoticeInfoVO") NoticeInfoVO vo) throws Exception{
+					
+		int a = service.insertNoticeInfo(vo);
+   	
+		return a;
+	
+    }
+	
+}

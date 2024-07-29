@@ -1,0 +1,37 @@
+package com.qms.bom.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.qms.bom.dao.BomDao;
+import com.qms.bom.vo.BomInfoVO;
+import com.qms.item.vo.ItemVO;
+
+@Service
+public class BomService {
+
+	@Autowired
+	BomDao dao;
+	
+	// BOM 조회하기
+	public List<ItemVO> selectBomList(ItemVO vo)throws Exception{
+		return dao.selectBomList(vo);
+	}
+	
+	// 페이징
+	public int selectTotalBomCount(ItemVO vo)throws Exception{
+		return dao.selectTotalBomCount(vo);
+	}
+	
+	// BOM 상세조회
+	public BomInfoVO selectBomDtl(BomInfoVO vo)throws Exception{
+		return dao.selectBomDtl(vo);
+	}
+	
+	// BOM 자재리스트 조회
+	public List<BomInfoVO> selectBomDtlList(BomInfoVO vo)throws Exception{
+		return dao.selectBomDtlList(vo);
+	}
+}
